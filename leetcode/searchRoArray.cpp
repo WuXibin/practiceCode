@@ -22,6 +22,7 @@ int search(int A[], int n, int target) {
         else
             high = mid - 1;
     }
+    cout << "high index: " << high << endl;
     if(target >= A[0])
         return binarySearch(A, high + 1, target);
     else {
