@@ -1,8 +1,9 @@
 CC=g++
-CFLAGS=-Wall
+CFLAGS=-c -Wall
 LDFLAGS=
 
 OBJS=foo.o bar.o test.o
+DEPS=
 TAGS=hehe
 
 all: $(TAGS)
@@ -10,5 +11,10 @@ all: $(TAGS)
 $(TAGS): $(OBJS)
 	$(CC) $(LDFLAGS) $(OBJS) -o $@ 
 
-$(OBJS):%.o:%.cc
-	$(CC) -c $(CFLAGS) $< -o $@ 
+%.o:%.cc
+	$(CC) $(CFLAGS) $< -o $@ 
+
+.PHONY: clean
+
+clean:
+	rm $(TAGS) $(OBJS)

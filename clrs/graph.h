@@ -1,9 +1,19 @@
 #ifndef __GRAPH_H__
 #define __GRAPH_H__
+#include <limits.h>
+#include <list>
 
 namespace CLRS {
 
-class VertexListNode;
+struct VertexListNode;
+class Graph;
+
+int BFS(Graph&);
+int DFS(Graph&, std::list<int>&);
+int DFSVisit(Graph&, VertexListNode*, std::list<int>&);
+Graph ReverseGraph(Graph&);
+int ReverseDFS(Graph&, std::list<int>&);
+int ReverseDFSVisit(Graph&, VertexListNode*);
 
 enum VertexColor {
     White,
@@ -11,16 +21,15 @@ enum VertexColor {
     Black
 };
 
-class Vertex {
-public:
-    Vertex(int num): number_(num), color_(White), distance_(INT_MAX),
+struct Vertex {
+    Vertex(int num): number_(num), distance_(INT_MAX), color_(White), 
         parent_(NULL), discovery_time_(0), finish_time_(0) { 
     }
 
     int number() const {
         return number_;        
     }
-private:
+
     int number_;
 
     //BFS
@@ -33,20 +42,18 @@ private:
     int finish_time_;
 };
 
-class AdjListNode {
-public:
+struct AdjListNode {
     AdjListNode(VertexListNode* vnode): vertex_node_(vnode), next_(NULL) {
     }
     VertexListNode* vertex_node() const {
         return vertex_node_;
     }
-private:
+
     VertexListNode* vertex_node_;
     AdjListNode* next_;
 };
 
-class VertexListNode {
-public:
+struct VertexListNode {
     VertexListNode(Vertex* vert): vertex_(vert), adjlist_(NULL), next_(NULL) { 
     }
 
@@ -54,7 +61,7 @@ public:
     Vertex* vertex() const {
         return vertex_;
     }
-private:
+
     Vertex* vertex_;
     AdjListNode* adjlist_;
     VertexListNode* next_; 
@@ -65,12 +72,22 @@ public:
     Graph(): vertex_list_(NULL) { }
     ~Graph();
 
-    int InsertVertex(int);
+    void Print() const;
+
+    VertexListNode* InsertVertex(int);
     int InsertEdge(int, int);
+
+    friend int BFS(Graph&, int);
+    friend int DFS(Graph&, std::list<int>&);
+    friend int DFSVisit(Graph&, VertexListNode*, std::list<int>&);
+    friend Graph ReverseGraph(Graph&);
+    friend int ReverseDFS(Graph&, std::list<int>&);
+    friend int ReverseDFSVisit(Graph&, VertexListNode*);
 private:
     VertexListNode* find_vertex(int);
     VertexListNode* vertex_list_;
 };
+
 
 }
 
