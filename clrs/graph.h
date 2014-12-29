@@ -5,6 +5,8 @@
 
 namespace CLRS {
 
+static const int kMaxDistance = 1000;
+
 struct VertexListNode;
 class Graph;
 
@@ -14,6 +16,9 @@ int DFSVisit(Graph&, VertexListNode*, std::list<int>&);
 Graph ReverseGraph(Graph&);
 int ReverseDFS(Graph&, std::list<int>&);
 int ReverseDFSVisit(Graph&, VertexListNode*);
+bool BellmanFord(Graph&, int);
+int InitSingleSource(Graph&, int);
+void Relax(VertexListNode*, VertexListNode*, int);
 
 enum VertexColor {
     White,
@@ -43,12 +48,13 @@ struct Vertex {
 };
 
 struct AdjListNode {
-    AdjListNode(VertexListNode* vnode): vertex_node_(vnode), next_(NULL) {
-    }
+    AdjListNode(int weight, VertexListNode* vnode): 
+        weight_(weight), vertex_node_(vnode), next_(NULL) {}
     VertexListNode* vertex_node() const {
         return vertex_node_;
     }
 
+    int weight_;
     VertexListNode* vertex_node_;
     AdjListNode* next_;
 };
@@ -75,7 +81,7 @@ public:
     void Print() const;
 
     VertexListNode* InsertVertex(int);
-    int InsertEdge(int, int);
+    int InsertEdge(int, int, int);
 
     friend int BFS(Graph&, int);
     friend int DFS(Graph&, std::list<int>&);
@@ -83,7 +89,8 @@ public:
     friend Graph ReverseGraph(Graph&);
     friend int ReverseDFS(Graph&, std::list<int>&);
     friend int ReverseDFSVisit(Graph&, VertexListNode*);
-private:
+    friend bool BellmanFord(Graph&, int);
+
     VertexListNode* find_vertex(int);
     VertexListNode* vertex_list_;
 };

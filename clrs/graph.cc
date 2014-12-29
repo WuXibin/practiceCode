@@ -58,23 +58,15 @@ VertexListNode* Graph::InsertVertex(int num) {
     return vertex;
 }
 
-int Graph::InsertEdge(int startno, int endno) {
-    VertexListNode* vertex_start = find_vertex(startno);
-    if(vertex_start == NULL) {
-        //std::cout << startno << " not exist, insert it!" << std::endl;
-        vertex_start = InsertVertex(startno);
-    }
-    VertexListNode* vertex_end = find_vertex(endno);
-    if(vertex_end == NULL) {
-        //std::cout << endno << " not exist, insert it!" << std::endl;
-        vertex_end = InsertVertex(endno);
-    }
+int Graph::InsertEdge(int startno, int endno, int weight) {
+    VertexListNode *vertex_start = InsertVertex(startno);
+    VertexListNode* vertex_end = InsertVertex(endno);
 
     //edge already exist
     if(vertex_start->find_adjvertex(endno) != NULL)
         return 0;
 
-    AdjListNode* listnode = new AdjListNode(vertex_end);
+    AdjListNode* listnode = new AdjListNode(weight, vertex_end);
     listnode->next_ = vertex_start->adjlist_;
     vertex_start->adjlist_ = listnode;
 
@@ -86,13 +78,10 @@ void Graph::Print() const {
     VertexListNode* vertex = vertex_list_;
     while(vertex) {
         AdjListNode* adj = vertex->adjlist_;
-        std::cout << "[" << vertex->vertex_->number_ << " " 
-            //<< vertex->vertex_->distance_ << "] ";
-            << vertex->vertex_->discovery_time_ << " "
-            << vertex->vertex_->finish_time_ << "] ";
+        std::cout << "[" << vertex->vertex_->number_ << "]"; 
         while(adj) {
             assert(adj->vertex_node_ != NULL);
-            std::cout << adj->vertex_node_->vertex_->number() << " ";
+            std::cout << adj->vertex_node_->vertex_->number() << ":" << adj->weight_ << std::endl;
             adj = adj->next_;
         }
         std:: cout << std::endl;
@@ -175,7 +164,7 @@ Graph ReverseGraph(Graph& graph) {
         while(adj) {
             assert(adj->vertex_node_ != NULL);
             int end_num = adj->vertex_node_->vertex_->number_;
-            reverse_graph.InsertEdge(end_num, start_num);
+            reverse_graph.InsertEdge(end_num, start_num, adj->weight_);
             adj = adj->next_;
         }
         vertex = vertex->next_;
@@ -216,5 +205,42 @@ int ReverseDFSVisit(Graph& graph, VertexListNode* vnode) {
 
     std::cout << vnode->vertex_->number_ << std::endl;
     return 0;   
+}
+
+void Relax(VertexListNode *u, VertexListNode *v, int weight) {
+    int udist = u->vertex_->distance_;
+    if(udist != INT_MAX && v->vertex_->distance_ > udist + weight) {
+        v->vertex_->distance_ = udist + weight;
+        v->vertex_->parent_ = u->vertex_;
+    }
+}
+
+bool BellmanFord(Graph &graph, int source) {
+    VertexListNode *source_node = graph.find_vertex(source);
+    source_node->vertex_->distance_ = 0; 
+
+    VertexListNode *list_node = graph.vertex_list_;
+    //for each vertex
+    for(; list_node; list_node = list_node->next_) {
+        //for each edge
+        VertexListNode *node = graph.vertex_list_;
+        for(; node; node = node->next_) {
+            AdjListNode *adj_node = node->adjlist_;
+            for(; adj_node; adj_node = adj_node->next_) {
+                Relax(node, adj_node->vertex_node_, adj_node->weight_);
+            }
+        }
+    }
+    
+    VertexListNode *node = graph.vertex_list_;
+    for(; node; node = node->next_) {
+        AdjListNode *adj_node = node->adjlist_;
+        for(; adj_node; adj_node = adj_node->next_) {
+            if(node->vertex_->distance_ + adj_node->weight_ < adj_node->vertex_node_->vertex_->distance_)
+                return false;
+        }
+    }
+
+    return true;
 }
 };
