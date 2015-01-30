@@ -45,20 +45,29 @@ void ev_callback(int fd, short what, void *arg) {
     }
 }
 
+int ConnectServer(const char *ip, unsigned port) {
+    struct sockaddr_in sin;
+    sin.sin_family = AF_INET;
+    sin.sin_port = htons(port);
+    inet_pton(AF_INET, ip, (struct sockaddr *)&sin.sin_addr);
+    
+    int servfd = socket(AF_INET, SOCK_STREAM, 0);
+    ::evutil_make_socket_nonblocking(servfd);
+    if(connect(servfd, (struct sockaddr *)&sin, sizeof(sin)) == -1) {
+        perror("connect error");
+        return -1;
+    }
+
+    return servfd;
+}
+
 int main(int argc, char **argv) {
     if(argc != 3) {
         printf("Usage: %s host_ip host_port\n", argv[0]);
         return -1;
     }
 
-    struct sockaddr_in sin;
-    sin.sin_family = AF_INET;
-    sin.sin_port = htons(atoi(argv[2]));
-    inet_pton(AF_INET, argv[1], (struct sockaddr *)&sin.sin_addr);
-    
-    int servfd = socket(AF_INET, SOCK_STREAM, 0);
-    ::evutil_make_socket_nonblocking(servfd);
-    connect(servfd, (struct sockaddr *)&sin, sizeof(sin)); 
+    int servfd = ConnectServer(argv[1], atoi(argv[1])); 
     char msg[] = "Nice to meet you";
     write(servfd, msg, sizeof(msg));
     

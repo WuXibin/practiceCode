@@ -1,5 +1,6 @@
 #include <iostream>
 #include <queue>
+#include <list>
 #include <assert.h>
 #include "graph.h"
 
@@ -215,6 +216,9 @@ void Relax(VertexListNode *u, VertexListNode *v, int weight) {
     }
 }
 
+/*
+ * The running time takes O(VE).
+ */
 bool BellmanFord(Graph &graph, int source) {
     VertexListNode *source_node = graph.find_vertex(source);
     source_node->vertex_->distance_ = 0; 
@@ -242,5 +246,48 @@ bool BellmanFord(Graph &graph, int source) {
     }
 
     return true;
+}
+
+/*
+ * Find the vertex of minimal distance among gray vertex from vertex list.
+ * The runing time is O(V).
+ */
+VertexListNode *FindMinDistance(VertexListNode *vlist) {
+    VertexListNode *node = vlist;
+    int min_dist = INT_MAX;
+    VertexListNode *min_node = NULL;
+
+    for(; node; node = node->next_) {
+        if(node->vertex_->color_ == Gray && node->vertex_->distance_ < min_dist) {
+            min_dist = node->vertex_->distance_;
+            min_node = node;
+        } 
+    }    
+
+    return min_node;
+}
+
+/*
+ * The while loop will excute O(V), in each loop FindMinDistance takes O(V).
+ * The sum of foor-loop in while-loop takes O(E).
+ * So the total of Dijkstra algorithm takes O(V ^ 2 + E) = O(V ^ 2).
+ */
+void Dijkstra(Graph &graph, int source) {
+    VertexListNode *source_node = graph.find_vertex(source);
+    source_node->vertex_->distance_ = 0; 
+    source_node->vertex_->color_ = Gray;
+    
+    while(1) { 
+        VertexListNode *min_node = FindMinDistance(graph.vertex_list_);
+        if(!min_node)
+            break;
+        min_node->vertex_->color_ = Black;
+        AdjListNode *adj_node = min_node->adjlist_;
+        for(; adj_node; adj_node = adj_node->next_) {
+            Relax(min_node, adj_node->vertex_node_, adj_node->weight_);
+            if(adj_node->vertex_node_->vertex_->color_ == White)
+                adj_node->vertex_node_->vertex_->color_ = Gray;
+        }
+    }
 }
 };

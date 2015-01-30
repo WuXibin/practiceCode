@@ -35,6 +35,7 @@ int main() {
     reverse_graph.Print();
     */
 
+    /*
     graph.Print();
     if(BellmanFord(graph, 0)) {
         cout << "No negtive cycle" << endl;
@@ -46,6 +47,12 @@ int main() {
     for(; list_node; list_node = list_node->next_) {
         cout << list_node->vertex_->number_ << " : " << list_node->vertex_->distance_ << endl;
     }
+    */
 
+    Dijkstra(graph, 0);
+    VertexListNode *list_node = graph.vertex_list_;
+    for(; list_node; list_node = list_node->next_) {
+        cout << list_node->vertex_->number_ << " : " << list_node->vertex_->distance_ << endl;
+    }
     return 0;
 }

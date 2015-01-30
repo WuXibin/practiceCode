@@ -19,6 +19,8 @@ int ReverseDFSVisit(Graph&, VertexListNode*);
 bool BellmanFord(Graph&, int);
 int InitSingleSource(Graph&, int);
 void Relax(VertexListNode*, VertexListNode*, int);
+void Dijkstra(Graph &graph, int source);
+VertexListNode *FindMinDistance(VertexListNode *vlist);
 
 enum VertexColor {
     White,
