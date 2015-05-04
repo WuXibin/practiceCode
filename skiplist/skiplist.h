@@ -16,10 +16,11 @@ typedef struct skiptype {
 typedef struct listnode {
     void *key;
     void *val;
-    listnode* forward[MaxLevel];
+    struct listnode *forward[MaxLevel];
 } listnode;
 
 typedef struct skiplist {
+    int cur_nodes;
     int cur_level;
     skiptype type;
     listnode *forward[MaxLevel];
