@@ -52,7 +52,7 @@ int ConnectServer(const char *ip, unsigned port) {
     inet_pton(AF_INET, ip, (struct sockaddr *)&sin.sin_addr);
     
     int servfd = socket(AF_INET, SOCK_STREAM, 0);
-    ::evutil_make_socket_nonblocking(servfd);
+    //::evutil_make_socket_nonblocking(servfd);
     if(connect(servfd, (struct sockaddr *)&sin, sizeof(sin)) == -1) {
         perror("connect error");
         return -1;
@@ -85,7 +85,7 @@ int main(int argc, char **argv) {
 
     tv.tv_sec = 1;
     tv.tv_usec = 0;
-    ::event_add(ev, &tv);
+    //::event_add(ev, &tv);
     ::event_base_dispatch(base);
     return 0;
 }

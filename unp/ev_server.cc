@@ -9,18 +9,21 @@
 
 #define MAX_BUFSIZE 1024
 
+typedef struct {
+    struct event *ev;
+} event_ctx;
+
 void ev_callback(int fd, short what, void *arg) {
     printf("ev_callback\n");
     char buf[MAX_BUFSIZE];
-    struct event **evp = (struct event **)arg;
     if(what & EV_READ) {
         int n;
         while(1) {
             n = read(fd, buf, MAX_BUFSIZE);
             if(n <= 0) break;
             buf[n] = 0;
-            char str[MAX_BUFSIZE];
-            snprintf(str, MAX_BUFSIZE, "hi, %d %s\n", fd, buf);
+            printf("receive: %s\n", buf);
+            sleep(1);
             write(fd, buf, n);  //echo
         }
         if(n < 0 && errno == EAGAIN) {
@@ -28,7 +31,8 @@ void ev_callback(int fd, short what, void *arg) {
             return;
         }
         printf("Client [%d] disconnect, free event\n", fd);
-        ::event_free(*evp);
+        event_ctx *ctx = (event_ctx *)arg;
+        ::event_del(ctx->ev);
     }
 }
 
@@ -40,8 +44,11 @@ void do_accept(int fd, short what, void *arg) {
         if(clifd < 0) return;
         ::evutil_make_socket_nonblocking(clifd);
         printf("Client [%d] connect.\n", clifd);
+
         struct event *ev;
-        ev = ::event_new(base, clifd, EV_READ | EV_PERSIST, ev_callback, &ev);
+        event_ctx *ctx = (event_ctx *) malloc(sizeof(event_ctx));
+        ev = ::event_new(base, clifd, EV_READ | EV_PERSIST, ev_callback, ctx);
+        ctx->ev = ev;
         ::event_add(ev, NULL);
     }
 }
