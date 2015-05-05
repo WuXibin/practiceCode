@@ -95,7 +95,7 @@ void skp_delete(skiplist *skp, void *key) {
     listnode *p = skp->forward[level];
     for(int i = level; i >= 0; --i) {
         while(p->forward[i] && 
-                skp->type.key_comp(p->forward[i]->key, key)) {
+                skp->type.key_comp(p->forward[i]->key, key) < 0) {
             p = p->forward[i]; 
         }
         update[i] = p;
