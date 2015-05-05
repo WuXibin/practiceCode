@@ -2,6 +2,7 @@
 #include <string.h>
 #include <assert.h>
 #include <time.h>
+#include <stdio.h>
 
 #include "skiplist.h"
 
@@ -20,22 +21,30 @@ skiplist* skp_create(skiptype type) {
 
 listnode* skp_search(skiplist *skp, void *key) {
     int level = skp->cur_level - 1;
-    if(level < 0) 
+    if(level < 0) { 
+        printf("cur_level[%d] < 0\n", skp->cur_level);
         return NULL;
+    }
 
+    int cnt = 0;
     listnode *p = skp->forward[level];
     for(int i = level; i >= 0; --i) {
         assert(p);
         while(p->forward[i] 
                 && skp->type.key_comp(p->forward[i]->key, key) < 0) {
             p = p->forward[i];
+            ++cnt;
         }
     }
 
+    ++cnt;
     p = p->forward[0];
     if(p && skp->type.key_comp(p->key, key) == 0) {
+        printf("cnt=%d\n", cnt);
         return p;
     }
+
+    printf("cnt=%d\n", cnt);
 
     return NULL;
 }
