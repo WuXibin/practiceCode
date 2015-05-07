@@ -72,6 +72,7 @@ void skp_insert(skiplist *skp, void *key, void *val) {
     }
 
     listnode *node = (listnode *)malloc(sizeof(listnode));
+    memset(node, 0, sizeof(listnode));
     node->key = key;
     node->val = val;
 
