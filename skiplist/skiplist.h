@@ -2,7 +2,7 @@
 #define __SKIPLIST_H__
 
 #define MaxLevel    16
-#define Fraction    25          /* percentage */
+#define Fraction    50          /* percentage */
 
 typedef int (*KeyCompare)(void *, void *);
 typedef void (*Destructor)(void *);
@@ -23,7 +23,7 @@ typedef struct skiplist {
     int cur_nodes;
     int cur_level;
     skiptype type;
-    listnode *forward[MaxLevel];
+    listnode head;
 } skiplist;
 
 skiplist* skp_create(skiptype type);
