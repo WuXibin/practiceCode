@@ -1,0 +1,64 @@
+-rw-r--r-- 1 joel users 1955406 May 14 09:55 top20.txt
+
+-----------------hash-max-ziplist-value 64--------------------- 
+# Memory
+used_memory:4968680
+used_memory_human:4.74M
+used_memory_rss:13516800
+used_memory_rss_human:12.89M
+used_memory_peak:4968680
+used_memory_peak_human:4.74M
+
+-----------------hash-max-ziplist-value 512-------------------- 
+# Memory
+used_memory:3857048
+used_memory_human:3.68M
+used_memory_rss:13340672
+used_memory_rss_human:12.72M
+used_memory_peak:3857048
+used_memory_peak_human:3.68M
+
+-----------------hash-max-ziplist-value 1024------------------- 
+# Memory
+used_memory:3857048
+used_memory_human:3.68M
+used_memory_rss:13414400
+used_memory_rss_human:12.79M
+used_memory_peak:3857048
+used_memory_peak_human:3.68M
+
+------------------------string---------------------------------
+# Memory
+used_memory:3168616
+used_memory_human:3.02M
+used_memory_rss:11444224
+used_memory_rss_human:10.91M
+used_memory_peak:3168616
+used_memory_peak_human:3.02M
+
+------------------------string with zlib-----------------------
+# Memory
+used_memory:2587128
+used_memory_human:2.47M
+used_memory_rss:11264000
+used_memory_rss_human:10.74M
+used_memory_peak:2587128
+used_memory_peak_human:2.47M
+
+-----------------------string with encode---------------------
+# Memory
+used_memory:2461592
+used_memory_human:2.35M
+used_memory_rss:11210752
+used_memory_rss_human:10.69M
+used_memory_peak:2461592
+used_memory_peak_human:2.35M
+
+----------------------string with protobuf--------------------
+# Memory
+used_memory:3250280
+used_memory_human:3.10M
+used_memory_rss:11210752
+used_memory_rss_human:10.69M
+used_memory_peak:3391688
+used_memory_peak_human:3.23M
