@@ -1,0 +1,34 @@
+package AdServerCommon;
+
+// 用户信息
+message USER_INFO_S {
+    // 用户标签
+    message USER_TAG_S {
+    	required int32 tag = 1;
+        required float score = 2;
+    }
+        
+    // 品牌
+    repeated USER_TAG_S m_user_auto_brand = 1;
+    
+    // 车系
+    repeated USER_TAG_S m_user_auto_serie = 2;
+    
+    // 级别
+    repeated USER_TAG_S m_user_auto_level = 3;
+    
+    // 价格
+    repeated USER_TAG_S m_user_auto_price = 4;
+    
+    // 车型
+    repeated USER_TAG_S m_user_auto_spec = 5;
+    
+    // 
+    repeated USER_TAG_S m_user_auto_sect = 6;
+    
+    //
+    repeated USER_TAG_S m_user_auto_place = 7;
+    
+    //
+    optional int32 m_user_group = 8;
+}

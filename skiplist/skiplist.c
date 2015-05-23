@@ -20,18 +20,12 @@ skiplist* skp_create(skiptype type) {
 
 
 listnode* skp_search(skiplist *skp, void *key) {
-    int level = skp->cur_level - 1;
-    if(level < 0) { 
-        printf("cur_level[%d] < 0\n", skp->cur_level);
-        return NULL;
-    }
-
     int cnt = 0;
-    listnode *p = skp->forward[level];
-    for(int i = level; i >= 0; --i) {
-        assert(p);
-        while(p->forward[i] 
-                && skp->type.key_comp(p->forward[i]->key, key) < 0) {
+
+    listnode *p = &skp->head;
+    for(int i = skp->cur_level - 1; i >= 0; --i) {
+        ++cnt;
+        while(p->forward[i] && skp->type.key_comp(p->forward[i]->key, key) < 0) {
             p = p->forward[i];
             ++cnt;
         }
@@ -40,71 +34,61 @@ listnode* skp_search(skiplist *skp, void *key) {
     ++cnt;
     p = p->forward[0];
     if(p && skp->type.key_comp(p->key, key) == 0) {
-        printf("cnt=%d\n", cnt);
+        printf("cnt=%d found!\n", cnt);
         return p;
     }
 
-    printf("cnt=%d\n", cnt);
+    printf("cnt=%d not found\n", cnt);
 
     return NULL;
 }
 
 void skp_insert(skiplist *skp, void *key, void *val) {
     listnode *update[MaxLevel];      
-    int level = skp->cur_level - 1;
+    listnode *p = &skp->head;
 
-    if(level >= 0) {
-        listnode *p = skp->forward[level];
-        for(int i = level; i >= 0; --i) {
-            assert(p);
-            while(p->forward[i] && 
-                    skp->type.key_comp(p->forward[i]->key, key) < 0) {
-                p = p->forward[i];
-            }
-            update[i] = p;
+    for(int i = skp->cur_level - 1; i >= 0; --i) {
+        while(p->forward[i] && skp->type.key_comp(p->forward[i]->key, key) < 0) {
+            p = p->forward[i];
         }
+        update[i] = p;
+    }
 
-        p = p->forward[0];
-        if(p && skp->type.key_comp(p->key, key) == 0) {
-            p->val = val;
-            return;
-        }
+    p = p->forward[0];
+    if(p && skp->type.key_comp(p->key, key) == 0) {
+        p->val = val;
+        return;
     }
 
     listnode *node = (listnode *)malloc(sizeof(listnode));
+    memset(node, 0, sizeof(listnode));
     node->key = key;
     node->val = val;
 
-    int lv = skp_random_level(MaxLevel, Fraction);
-    if(lv <= skp->cur_level) {
-        for(int i = 0; i < lv; ++i) {
-            node->forward[i] = update[i]->forward[i]; 
-            update[i]->forward[i] = node;
-        }
+    int rand_level = skp_random_level(MaxLevel, Fraction);
+    int min_level = (rand_level <= skp->cur_level) ? rand_level : skp->cur_level;
+    for(int i = 0; i < min_level; ++i) {
+        node->forward[i] = update[i]->forward[i]; 
+        update[i]->forward[i] = node;
     }
 
-    for(int i = skp->cur_level; i < lv; i++) {
-        node->forward[i] = skp->forward[i];
-        skp->forward[i] = node;
+    if(rand_level > skp->cur_level) {
+        for(int i = skp->cur_level; i < rand_level; ++i) {
+            node->forward[i] = skp->head.forward[i];
+            skp->head.forward[i] = node;
+        }
+        skp->cur_level = rand_level;
     }
     
-    if(lv > skp->cur_level) {
-        skp->cur_level = lv;
-    }    
     ++skp->cur_nodes;
 }
 
 void skp_delete(skiplist *skp, void *key) {
     listnode *update[MaxLevel];
-    int level = skp->cur_level - 1;
+    listnode *p = &skp->head;
 
-    if(level < 0) 
-        return;
-
-    listnode *p = skp->forward[level];
-    for(int i = level; i >= 0; --i) {
-        while(p->forward[i] && 
-                skp->type.key_comp(p->forward[i]->key, key) < 0) {
+    for(int i = skp->cur_level - 1; i >= 0; --i) {
+        while(p->forward[i] && skp->type.key_comp(p->forward[i]->key, key) < 0) {
             p = p->forward[i]; 
         }
         update[i] = p;
@@ -114,7 +98,7 @@ void skp_delete(skiplist *skp, void *key) {
     if(p == NULL || skp->type.key_comp(p->key, key) != 0)
         return; 
 
-    for(int i = 0; i < level; ++i) {
+    for(int i = 0; i < skp->cur_level; ++i) {
         if(update[i]->forward[i] != p) 
             break;
 
@@ -125,20 +109,22 @@ void skp_delete(skiplist *skp, void *key) {
     skp->type.val_desc(p->val);
     free(p);
 
-    while(skp->cur_level > 0 && skp->forward[skp->cur_level - 1] == NULL) {
+    while(skp->cur_level > 0 && skp->head.forward[skp->cur_level - 1] == NULL) {
         --skp->cur_level;
     }
     --skp->cur_nodes;
 } 
 
 void skp_destroy(skiplist *skp) {
-    while(skp->forward[0]) {
-         listnode *p = skp->forward[0];
-         skp->forward[0] = p->forward[0];
+    listnode *p = skp->head.forward[0];
+    while(p) {
+         listnode *next = p->forward[0];
 
          skp->type.key_desc(p->key);
          skp->type.val_desc(p->val);
          free(p);
+
+         p = next;
     }
 
     free(skp);
@@ -156,5 +142,3 @@ static int skp_random_level(int max_level, int fraction) {
 
     return level;
 }
-
-
